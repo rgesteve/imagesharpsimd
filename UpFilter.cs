@@ -45,7 +45,7 @@ internal static class UpFilter
         }
     }
 
-    private static void DecodeAvx2(Span<byte> scanline, Span<byte> previousScanline)
+    public static void DecodeAvx2(Span<byte> scanline, Span<byte> previousScanline)
     {
         ref byte scanBaseRef = ref MemoryMarshal.GetReference(scanline);
         ref byte prevBaseRef = ref MemoryMarshal.GetReference(previousScanline);
@@ -63,6 +63,40 @@ internal static class UpFilter
 
             offset += (uint)Vector256<byte>.Count;
             rb -= Vector256<byte>.Count;
+        }
+
+        // Handle left over.
+        for (nuint i = offset; i < (uint)scanline.Length; i++)
+        {
+            ref byte scan = ref Unsafe.Add(ref scanBaseRef, offset);
+            byte above = Unsafe.Add(ref prevBaseRef, offset);
+            scan = (byte)(scan + above);
+            offset++;
+        }
+    }
+
+    public static void DecodeAvx512(Span<byte> scanline, Span<byte> previousScanline)
+    {
+        ref byte scanBaseRef = ref MemoryMarshal.GetReference(scanline);
+        ref byte prevBaseRef = ref MemoryMarshal.GetReference(previousScanline);
+
+        // Up(x) + Prior(x)
+        int rb = scanline.Length;
+        nuint offset = 1;
+        while (rb >= Vector512<byte>.Count)
+        {
+            ref byte scanRef = ref Unsafe.Add(ref scanBaseRef, offset);
+            Vector512<byte> prior = Unsafe.As<byte, Vector512<byte>>(ref scanRef);
+            Vector512<byte> up = Unsafe.As<byte, Vector512<byte>>(ref Unsafe.Add(ref prevBaseRef, offset));
+
+#if false
+            Unsafe.As<byte, Vector512<byte>>(ref scanRef) = Avx2.Add(up, prior);
+#else
+            Unsafe.As<byte, Vector512<byte>>(ref scanRef) = up + prior;
+#endif
+
+            offset += (uint)Vector512<byte>.Count;
+            rb -= Vector512<byte>.Count;
         }
 
         // Handle left over.
