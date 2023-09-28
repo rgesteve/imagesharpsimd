@@ -171,7 +171,7 @@ internal static class UpFilter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void DecodeScalar(Span<byte> scanline, Span<byte> previousScanline)
+    public static void DecodeScalar(Span<byte> scanline, Span<byte> previousScanline)
     {
         ref byte scanBaseRef = ref MemoryMarshal.GetReference(scanline);
         ref byte prevBaseRef = ref MemoryMarshal.GetReference(previousScanline);

@@ -11,7 +11,8 @@ class Program
 	Random.Shared.NextBytes(vec_b);
 
 	//UpFilter.DecodeAvx2(vec_a, vec_b);
-	UpFilter.DecodeAvx512(vec_a, vec_b);
+	//UpFilter.DecodeAvx512(vec_a, vec_b);
+	UpFilter.DecodeScalar(vec_a, vec_b);
 
 	for (int i = 0; i < vec_a.Length; i++) {
 	  Console.Write($"{vec_a[i]} ");
