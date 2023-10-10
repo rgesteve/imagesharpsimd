@@ -92,7 +92,8 @@ internal static class UpFilter
 #if false
             Unsafe.As<byte, Vector512<byte>>(ref scanRef) = Avx2.Add(up, prior);
 #else
-            Unsafe.As<byte, Vector512<byte>>(ref scanRef) = up + prior;
+            Unsafe.As<byte, Vector512<byte>>(ref scanRef) = Avx512BW.Add(up,prior);
+            //Unsafe.As<byte, Vector512<byte>>(ref scanRef) = up + prior;
 #endif
 
             offset += (uint)Vector512<byte>.Count;
